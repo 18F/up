@@ -1,0 +1,22 @@
+#!/bin/sh
+
+file="$1"
+
+key_id=${AWS_ACCESS_KEY_ID}
+key_secret=${AWS_SECRET_ACCESS_KEY}
+path="$file.enc"
+bucket=${UP_BUCKET}
+content_type="application/octet-stream"
+date="$(LC_ALL=C date -u +"%a, %d %b %Y %X %z")"
+
+openssl aes-256-cbc -a -salt -pass env:UP_ENC_KEY -in $file -out $file.enc
+
+md5="$(openssl md5 -binary < "$file.enc" | base64)"
+
+sig="$(printf "PUT\n$md5\n$content_type\n$date\n/$bucket/$path" | openssl sha1 -binary -hmac "$key_secret" | base64)"
+
+curl -T $file.enc http://$bucket.s3.amazonaws.com/$path \
+    -H "Date: $date" \
+    -H "Authorization: AWS $key_id:$sig" \
+    -H "Content-Type: $content_type" \
+    -H "Content-MD5: $md5"
