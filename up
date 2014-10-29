@@ -15,7 +15,7 @@ md5="$(openssl md5 -binary < "$file.enc" | base64)"
 
 sig="$(printf "PUT\n$md5\n$content_type\n$date\n/$bucket/$path" | openssl sha1 -binary -hmac "$key_secret" | base64)"
 
-curl -T $file.enc http://$bucket.s3.amazonaws.com/$path \
+curl -T $file.enc https://$bucket.s3.amazonaws.com/$path \
     -H "Date: $date" \
     -H "Authorization: AWS $key_id:$sig" \
     -H "Content-Type: $content_type" \
