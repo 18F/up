@@ -1,6 +1,8 @@
 # Up
 A simple script to encrypt and upload secrets to Amazon S3
 
+*note*: This is still a work in progress. Don't use this to upload secret things yet
+
 ## Setup
 Copy `up` to `/usr/local/bin/up`:
 
